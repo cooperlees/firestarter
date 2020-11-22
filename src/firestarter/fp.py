@@ -33,7 +33,7 @@ class Fireplace:
 
     async def _toggle_state(self) -> None:
         """Toggle the state of the fireplace - Use an async lock to ensure
-           only 1 thing is try to play with the toggle at once #monogamy"""
+        only 1 thing is try to play with the toggle at once #monogamy"""
         async with self.lock:
             self.loop.run_in_executor(
                 self.thread_pool, gpio.output(PIN_TOGGLE_STATE, GPIO.HIGH)
