@@ -24,8 +24,10 @@ class Fireplace:
     PIN_TOGGLE_STATE = 3
 
     def __init__(self) -> None:
-        GPIO.setmode(GPIO.BCM)
         self.loop = asyncio.get_running_loop()
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.PIN_SENSE_STATE, GPIO.IN)
+        GPIO.setup(self.PIN_TOGGLE_STATE, GPIO.OUT)
 
     def on_exit(self) -> None:
         """Function to use with atexit or some form of program exit cleanup"""
