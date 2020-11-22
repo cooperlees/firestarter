@@ -27,7 +27,12 @@ class Fireplace:
         self.loop = asyncio.get_running_loop()
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.PIN_SENSE_STATE, GPIO.IN)
+
+        # PIN_TOGGLE_STATE is LOW by default, but I'm not sure what the
+        # GPIO library will do when it moves it to mode OUTPUT
+        # Best be sure it stays LOW and didn't toggle the state during init
         GPIO.setup(self.PIN_TOGGLE_STATE, GPIO.OUT)
+        GPIO.output(self.PIN_TOGGLE_STATE, GPIO.LOW)
 
     def on_exit(self) -> None:
         """Function to use with atexit or some form of program exit cleanup"""
