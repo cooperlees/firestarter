@@ -55,8 +55,10 @@ async def index(request: web.Request) -> web.Response:
 async def change_state(request: web.Request) -> web.Response:
     fp = request.app["fireplace"]
     if "turn_on" in str(request.rel_url).lower():
+        LOG.info(f"{request.remote} turned fireplace ON")
         await fp.turn_on()
     else:
+        LOG.info(f"{request.remote} turned fireplace OFF")
         await fp.turn_off()
 
     # TODO: Add support for header to request JSON return
