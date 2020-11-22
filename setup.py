@@ -27,4 +27,5 @@ setup(
         "gunicorn",
         "uvloop",
     ],
+    package_data={"firestarter": ["*.gif", "*.jpg"]},
 )

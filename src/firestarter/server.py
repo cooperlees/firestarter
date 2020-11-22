@@ -5,6 +5,7 @@ import atexit
 import logging
 from datetime import datetime
 from os import environ
+from pathlib import Path
 
 from aiohttp import web
 
@@ -30,11 +31,12 @@ HTMLTEMPLATE = """\
         <form action="{action}" method="POST" id="toggle_form"></form>
         <button type="submit" form="toggle_form" value="{value}">{value}</button>
     </p>
-    <!-- TODO: Add sweet 1999 GIF of fireplace on or off -->
+    <p><img src="{img_src}"></p>
     <p><a href="/">HOME</a></p>
 </body>
 </html>
 """
+PARENT_DIR = Path(__file__).parent
 
 
 async def _generate_response_html(request: web.Request) -> str:
@@ -42,9 +44,13 @@ async def _generate_response_html(request: web.Request) -> str:
     lit = await fp.lit()
     status = "ON" if lit else "OFF"
     date = datetime.now().strftime("%a %b %d %Y %H:%M:%S")
-    action = "/turn_off" if status == "ON" else "/turn_on"
-    value = "Turn Fireplace Off" if status == "ON" else "Turn Fireplace On"
-    return HTMLTEMPLATE.format(status=status, date=date, action=action, value=value)
+    action = "/turn_off" if lit else "/turn_on"
+    value = "Turn Fireplace Off" if lit else "Turn Fireplace On"
+    img_file = "fireplace_on.gif" if lit else "fireplace_off.jpg"
+    img_src = PARENT_DIR / img_file
+    return HTMLTEMPLATE.format(
+        status=status, date=date, action=action, value=value, img_src=str(img_src)
+    )
 
 
 async def index(request: web.Request) -> web.Response:
