@@ -20,8 +20,8 @@ class Fireplace:
     lock = asyncio.Lock()
     thread_pool = ThreadPoolExecutor(max_workers=2)
 
-    PIN_SENSE_STATE = 2
-    PIN_TOGGLE_STATE = 3
+    PIN_TOGGLE_STATE = 2
+    PIN_SENSE_STATE = 3
 
     def __init__(self) -> None:
         self.loop = asyncio.get_running_loop()
@@ -30,9 +30,9 @@ class Fireplace:
 
         # PIN_TOGGLE_STATE is LOW by default, but I'm not sure what the
         # GPIO library will do when it moves it to mode OUTPUT
-        # Best be sure it stays LOW and didn't toggle the state during init
+        # Best be sure it stays HIGH and didn't toggle the state during init
         GPIO.setup(self.PIN_TOGGLE_STATE, GPIO.OUT)
-        GPIO.output(self.PIN_TOGGLE_STATE, GPIO.LOW)
+        GPIO.output(self.PIN_TOGGLE_STATE, GPIO.HIGH)
 
     def on_exit(self) -> None:
         """Function to use with atexit or some form of program exit cleanup"""
@@ -43,11 +43,11 @@ class Fireplace:
         only 1 thing is try to play with the toggle at once #monogamy"""
         async with self.lock:
             self.loop.run_in_executor(
-                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.HIGH,
+                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.LOW,
             )
             await asyncio.sleep(0.1)
             self.loop.run_in_executor(
-                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.LOW,
+                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.HIGH,
             )
 
     async def lit(self) -> bool:
