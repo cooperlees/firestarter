@@ -24,13 +24,14 @@ HTMLTEMPLATE = """\
 <html>
 <head><title>Mother Fucking Fireplace</title><head>
 <body>
-    <center><h1>Firestarter</h1></center>
-    <center><h2>Fireplace is {status} @ {date}<h2></center>
-    <p align="center">
+    <h1>Firestarter v6.9</h1>
+    <p>Fireplace is <strong>{status}</strong> @ {date}</p>
+    <p>
         <form action="{action}" method="POST" id="toggle_form"></form>
         <button type="submit" form="toggle_form" value="{value}">{value}</button>
     </p>
     <!-- TODO: Add sweet 1999 GIF of fireplace on or off -->
+    <p><a href="/">HOME</a></p>
 </body>
 </html>
 """
@@ -38,7 +39,8 @@ HTMLTEMPLATE = """\
 
 async def _generate_response_html(request: web.Request) -> str:
     fp = request.app["fireplace"]
-    status = "ON" if await fp.lit() else "OFF"
+    lit = await fp.lit()
+    status = "ON" if lit else "OFF"
     date = datetime.now().strftime("%a %b %d %Y %H:%M:%S")
     action = "/turn_off" if status == "ON" else "/turn_on"
     value = "Turn Fireplace Off" if status == "ON" else "Turn Fireplace On"
@@ -47,19 +49,19 @@ async def _generate_response_html(request: web.Request) -> str:
 
 async def index(request: web.Request) -> web.Response:
     formatted_html = await _generate_response_html(request)
-    return web.Response(text=formatted_html)
+    return web.Response(text=formatted_html, content_type="text/html")
 
 
 async def change_state(request: web.Request) -> web.Response:
     fp = request.app["fireplace"]
-    if "turn_on" in request.rel_url.lower():
+    if "turn_on" in str(request.rel_url).lower():
         await fp.turn_on()
     else:
-        await fb.turn_off()
+        await fp.turn_off()
 
     # TODO: Add support for header to request JSON return
     formatted_html = await _generate_response_html(request)
-    return web.Response(text=formatted_html)
+    return web.Response(text=formatted_html, content_type="text/html")
 
 
 async def sixtynine(request: web.Request) -> web.Response:

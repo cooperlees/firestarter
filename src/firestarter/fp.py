@@ -43,18 +43,18 @@ class Fireplace:
         only 1 thing is try to play with the toggle at once #monogamy"""
         async with self.lock:
             self.loop.run_in_executor(
-                self.thread_pool, gpio.output(self.PIN_TOGGLE_STATE, GPIO.HIGH)
+                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.HIGH,
             )
             await asyncio.sleep(0.1)
             self.loop.run_in_executor(
-                self.thread_pool, gpio.output(self.PIN_TOGGLE_STATE, GPIO.LOW)
+                self.thread_pool, GPIO.output, self.PIN_TOGGLE_STATE, GPIO.LOW,
             )
 
     async def lit(self) -> bool:
         """Is the fire on?"""
         return bool(
             await self.loop.run_in_executor(
-                self.thread_pool, GPIO.input(self.PIN_SENSE_STATE)
+                self.thread_pool, GPIO.input, self.PIN_SENSE_STATE,
             )
         )
 
