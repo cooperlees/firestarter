@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-present, Facebook, Inc.
 
+import atexit
 import logging
 from datetime import datetime
 from os import environ
@@ -74,6 +75,7 @@ async def serve() -> web.Application:
 
     app = web.Application()
     app["fireplace"] = Fireplace()
+    atexit.register(app["fireplace"].on_exit)
 
     app.router.add_get("/", index)
     app.router.add_post("/69", sixtynine)
