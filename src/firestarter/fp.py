@@ -17,8 +17,8 @@ class Fireplace:
 
     # Have all instances share lock + thread pool
     # Expect to have Web interface + prometheus stats use access to GPIO
-    self.lock = asyncio.Lock()
-    self.thread_pool = ThreadPoolExecutor(max_workers=2)
+    lock = asyncio.Lock()
+    thread_pool = ThreadPoolExecutor(max_workers=2)
 
     PIN_SENSE_STATE = 2
     PIN_TOGGLE_STATE = 3
@@ -36,18 +36,18 @@ class Fireplace:
         only 1 thing is try to play with the toggle at once #monogamy"""
         async with self.lock:
             self.loop.run_in_executor(
-                self.thread_pool, gpio.output(PIN_TOGGLE_STATE, GPIO.HIGH)
+                self.thread_pool, gpio.output(self.PIN_TOGGLE_STATE, GPIO.HIGH)
             )
             await asyncio.sleep(0.1)
             self.loop.run_in_executor(
-                self.thread_pool, gpio.output(PIN_TOGGLE_STATE, GPIO.LOW)
+                self.thread_pool, gpio.output(self.PIN_TOGGLE_STATE, GPIO.LOW)
             )
 
     async def lit(self) -> bool:
         """Is the fire on?"""
         return bool(
             await self.loop.run_in_executor(
-                self.thread_pool, GPIO.input(PIN_SENSE_STATE)
+                self.thread_pool, GPIO.input(self.PIN_SENSE_STATE)
             )
         )
 
