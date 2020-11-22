@@ -47,7 +47,8 @@ Install all into a virtualenv and start like any other gunicorn aiohttp web appl
 - uvloop is default but optional ...
 
 ```sh
-python3 -m venv /tmp/tbf/
+sudo apt install python3-rpi.gpio
+python3 -m venv --system-site-packages /tmp/tbf/
 /tmp/tbf/bin/pip install --upgrade pip setuptools
 /tmp/tbf/bin/pip install -e .
 /tmp/tbf/bin/gunicorn --bind=[::]:1469 --access-logfile=- --name=firestarter \
