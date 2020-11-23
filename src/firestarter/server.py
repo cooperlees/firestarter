@@ -10,6 +10,7 @@ from pathlib import Path
 from aiohttp import web
 
 from firestarter.fp import Fireplace
+from firestarter.prometheus import stats
 
 
 SIXTYNINE_ASCII = r"""\
@@ -87,6 +88,9 @@ async def serve() -> web.Application:
     atexit.register(app["fireplace"].on_exit)
 
     app.router.add_get("/", index)
+    app.router.add_get("/metrics", stats)
+    app.router.add_get("/stats", stats)
+    app.router.add_get("/probe", stats)
     app.router.add_post("/69", sixtynine)
     app.router.add_post("/sixtynine", sixtynine)
     app.router.add_post("/turn_off", change_state)
