@@ -36,7 +36,7 @@ HTMLTEMPLATE = """\
 </body>
 </html>
 """
-PARENT_DIR = Path(__file__).parent
+IMAGES_DIR = Path(__file__).parent / "images"
 
 
 async def _generate_response_html(request: web.Request) -> str:
@@ -46,8 +46,7 @@ async def _generate_response_html(request: web.Request) -> str:
     date = datetime.now().strftime("%a %b %d %Y %H:%M:%S")
     action = "/turn_off" if lit else "/turn_on"
     value = "Turn Fireplace Off" if lit else "Turn Fireplace On"
-    img_file = "fireplace_on.gif" if lit else "fireplace_off.jpg"
-    img_src = PARENT_DIR / img_file
+    img_src = "/images/fireplace_on.gif" if lit else "/images/fireplace_off.jpg"
     return HTMLTEMPLATE.format(
         status=status, date=date, action=action, value=value, img_src=str(img_src)
     )
@@ -92,6 +91,7 @@ async def serve() -> web.Application:
     app.router.add_post("/sixtynine", sixtynine)
     app.router.add_post("/turn_off", change_state)
     app.router.add_post("/turn_on", change_state)
+    app.router.add_static("/images", IMAGES_DIR)
 
     LOG.debug("Finished setting up routes")
     return app
