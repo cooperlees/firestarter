@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import asyncio
 from aiohttp import web
 from socket import getfqdn
 from time import time
@@ -18,7 +19,7 @@ fireplace_coroutines{hostname="%s"} %i %i
 
 async def stats(request: web.Request) -> web.Response:
     hostname = getfqdn()
-    state = await request["fireplace"].lit()
+    state = await request.app["fireplace"].lit()
     stat_time = int(time())
     formatted_metrics = PROMETHEUS_TEMPLATE % (
         hostname,
