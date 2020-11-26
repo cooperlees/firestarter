@@ -47,7 +47,7 @@ async def _generate_response_html(request: web.Request) -> str:
     date = datetime.now().strftime("%a %b %d %Y %H:%M:%S")
     action = "/turn_off" if lit else "/turn_on"
     value = "Turn Fireplace Off" if lit else "Turn Fireplace On"
-    img_src = IMAGES_DIR / "fireplace_on.gif" if lit else IMAGES_DIR / "fireplace_off.jpg"
+    img_src = "/images/fireplace_on.gif" if lit else "/images/fireplace_off.jpg"
     return HTMLTEMPLATE.format(
         status=status, date=date, action=action, value=value, img_src=str(img_src)
     )
