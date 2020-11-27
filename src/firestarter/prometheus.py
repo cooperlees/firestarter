@@ -8,11 +8,11 @@ from time import time
 
 PROMETHEUS_TEMPLATE = """\
 # HELP fireplace_status Is the fireplace running (bool)
-# TYPE fireplace_status guage
+# TYPE fireplace_status gauge
 fireplace_status{hostname="%s"} %i %i
 
 # HELP fireplace_coroutines Number of current running asyncio coroutines
-# TYPE fireplace_coroutines guage
+# TYPE fireplace_coroutines gauge
 fireplace_coroutines{hostname="%s"} %i %i
 """
 
