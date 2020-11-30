@@ -24,6 +24,7 @@ setup(
     install_requires=[
         "RPi.GPIO",
         "aiohttp",
+        "basicauth",
         "gunicorn",
         "uvloop",
     ],

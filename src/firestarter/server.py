@@ -6,7 +6,9 @@ import logging
 from datetime import datetime
 from os import environ
 from pathlib import Path
+from typing import Tuple
 
+import basicauth
 from aiohttp import web
 
 from firestarter.fp import Fireplace
@@ -27,6 +29,7 @@ HTMLTEMPLATE = """\
 <head><title>Mother Fucking Fireplace</title><head>
 <body>
     <h1>Firestarter v6.9</h1>
+    <p>Hello {user}, you are visiting from {ip}</p>
     <p>Fireplace is <strong>{status}</strong> @ {date}</p>
     <p>
         <form action="{action}" method="POST" id="toggle_form"></form>
@@ -40,7 +43,20 @@ HTMLTEMPLATE = """\
 IMAGES_DIR = Path("/var/www/images")
 
 
-async def _generate_response_html(request: web.Request) -> str:
+async def _get_user_and_ip(
+    request: web.Request, ip_header: str = "X-Forwarded-For"
+) -> Tuple[str, str]:
+    user = "Unauthed"
+    ip = str(request.remote)
+    if "Authorization" in request.headers:
+        user, _ = basicauth.decode(request.headers["Authorization"])
+        if ip_header in request.headers and request.headers[ip_header]:
+            ip = request.headers[ip_header]
+
+    return (user, ip)
+
+
+async def _generate_response_html(request: web.Request, user: str, ip: str) -> str:
     fp = request.app["fireplace"]
     lit = await fp.lit()
     status = "ON" if lit else "OFF"
@@ -49,26 +65,34 @@ async def _generate_response_html(request: web.Request) -> str:
     value = "Turn Fireplace Off" if lit else "Turn Fireplace On"
     img_src = "/images/fireplace_on.gif" if lit else "/images/fireplace_off.jpg"
     return HTMLTEMPLATE.format(
-        status=status, date=date, action=action, value=value, img_src=str(img_src)
+        status=status,
+        date=date,
+        action=action,
+        value=value,
+        img_src=str(img_src),
+        user=user,
+        ip=ip,
     )
 
 
 async def index(request: web.Request) -> web.Response:
-    formatted_html = await _generate_response_html(request)
+    user, ip = await _get_user_and_ip(request)
+    formatted_html = await _generate_response_html(request, user, ip)
     return web.Response(text=formatted_html, content_type="text/html")
 
 
 async def change_state(request: web.Request) -> web.Response:
     fp = request.app["fireplace"]
+    user, ip = await _get_user_and_ip(request)
     if "turn_on" in str(request.rel_url).lower():
-        LOG.info(f"{request.remote} turned fireplace ON")
+        LOG.info(f"{user} from {ip} turned fireplace ON")
         await fp.turn_on()
     else:
-        LOG.info(f"{request.remote} turned fireplace OFF")
+        LOG.info(f"{user} from {ip} turned fireplace OFF")
         await fp.turn_off()
 
     # TODO: Add support for header to request JSON return
-    formatted_html = await _generate_response_html(request)
+    formatted_html = await _generate_response_html(request, user, ip)
     return web.Response(text=formatted_html, content_type="text/html")
 
 
